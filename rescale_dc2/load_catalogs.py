@@ -4,9 +4,10 @@ import os
 import numpy as np
 from astropy.table import Table
 import fnmatch
+from .value_add_umachine_catalogs import apply_pbcs, add_host_keys
 
 
-dropbox_dirname = "/Users/aphearin/Dropbox/protoDC2"
+dropbox_dirname = "/Users/aphearin/Dropbox/protoDC2/umachine"
 
 
 def fname_generator(root_dirname, basename_filepat):
@@ -31,7 +32,7 @@ def _parse_scale_factor_from_umachine_sfr_catalog_fname(fname):
 def find_closest_available_umachine_snapshot(z, dirname=dropbox_dirname):
     """
     """
-    available_fnames = list(fname_generator(dirname, 'umachine_sfr_catalog*.hdf5'))
+    available_fnames = list(fname_generator(dirname, 'sfr_catalog*.hdf5'))
 
     f = _parse_scale_factor_from_umachine_sfr_catalog_fname
     available_snaps = np.array([1./f(fname) - 1. for fname in available_fnames])
@@ -43,4 +44,4 @@ def load_closest_available_umachine_catalog(z, dirname=dropbox_dirname):
     """
     """
     fname = find_closest_available_umachine_snapshot(z, dirname=dirname)
-    return Table.read(fname, path='data')
+    return apply_pbcs(add_host_keys(Table.read(fname, path='data')))
