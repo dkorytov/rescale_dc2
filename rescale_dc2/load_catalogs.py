@@ -4,7 +4,7 @@ import os
 import numpy as np
 from astropy.table import Table
 import fnmatch
-from .value_add_umachine_catalogs import apply_pbcs, add_host_keys
+from .value_add_umachine_catalogs import apply_pbcs, add_host_keys, add_ssfr
 
 
 dropbox_dirname = "/Users/aphearin/Dropbox/protoDC2/umachine"
@@ -44,4 +44,4 @@ def load_closest_available_umachine_catalog(z, dirname=dropbox_dirname):
     """
     """
     fname = find_closest_available_umachine_snapshot(z, dirname=dirname)
-    return apply_pbcs(add_host_keys(Table.read(fname, path='data')))
+    return add_ssfr(apply_pbcs(add_host_keys(Table.read(fname, path='data'))))
