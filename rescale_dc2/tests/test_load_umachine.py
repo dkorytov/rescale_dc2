@@ -3,10 +3,10 @@
 import os
 import numpy as np
 
-from ..load_catalogs import find_closest_available_umachine_snapshot
+from ..load_catalogs import find_closest_available_umachine_snapshot, load_closest_available_umachine_catalog
 
 
-__all__ = ('test_identify_correct_snapname', )
+__all__ = ('test_identify_correct_snapname', 'test_load_snapshots')
 
 
 def test_identify_correct_snapname():
@@ -25,3 +25,9 @@ def test_identify_correct_snapname():
     assert os.path.basename(fname4) == "umachine_sfr_catalog_0.744123.hdf5"
 
 
+def test_load_snapshots():
+    """
+    """
+    zlist = np.random.uniform(-1, 2, 5)
+    for z in zlist:
+        catalog = load_closest_available_umachine_catalog(z)

@@ -38,3 +38,9 @@ def find_closest_available_umachine_snapshot(z, dirname=dropbox_dirname):
 
     return available_fnames[np.argmin(np.abs(z - available_snaps))]
 
+
+def load_closest_available_umachine_catalog(z, dirname=dropbox_dirname):
+    """
+    """
+    fname = find_closest_available_umachine_snapshot(z, dirname=dirname)
+    return Table.read(fname, path='data')
