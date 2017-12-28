@@ -4,12 +4,12 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import numpy as np
 
-from ..csmf_resampling import target_source_bin_indices
+from ..csmf_resampling import source_target_bin_indices
 
 fixed_seed = 43
 
 
-def test_target_source_bin_indices1():
+def test_source_target_bin_indices1():
     num_source, num_target = int(4e4), int(6e4)
     nhalo_min = 1
 
@@ -21,7 +21,7 @@ def test_target_source_bin_indices1():
 
     host_mass_bin_edges = np.arange(10, 17)-0.01
 
-    source_bin_numbers, target_bin_numbers = target_source_bin_indices(
+    source_bin_numbers, target_bin_numbers = source_target_bin_indices(
         source_galaxy_host_mass, target_galaxy_host_mass,
         source_galaxy_is_central, target_galaxy_is_central, host_mass_bin_edges)
 

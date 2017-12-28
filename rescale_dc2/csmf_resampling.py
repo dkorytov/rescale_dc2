@@ -6,10 +6,10 @@ import numpy as np
 from galsampler import halo_bin_indices, matching_bin_dictionary
 
 
-__all__ = ('target_source_bin_indices', )
+__all__ = ('source_target_bin_indices', )
 
 
-def target_source_bin_indices(source_galaxy_host_mass, target_galaxy_host_mass,
+def source_target_bin_indices(source_galaxy_host_mass, target_galaxy_host_mass,
             source_galaxy_is_central, target_galaxy_is_central, host_mass_bin_edges, nhalo_min=50):
     """
     """
