@@ -4,9 +4,45 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import numpy as np
 from galsampler import halo_bin_indices, matching_bin_dictionary
+from halotools.empirical_models import conditional_abunmatch
 
 
-__all__ = ('source_target_bin_indices', )
+__all__ = ('source_target_bin_indices', 'rescale_stellar_mass_to_match_unnormalized_source_csmf')
+
+
+def rescale_stellar_mass_to_match_unnormalized_source_csmf(
+            source_galaxy_stellar_mass, target_galaxy_property,
+            source_galaxy_is_central, target_galaxy_is_central,
+            source_bin_numbers, target_bin_numbers):
+    """
+    """
+    result = np.copy(target_galaxy_property)
+
+    unique_target_bin_numbers = np.unique(target_bin_numbers)
+    for ibin in unique_target_bin_numbers:
+
+        source_ibin_mask = source_bin_numbers == ibin
+        target_ibin_mask = target_bin_numbers == ibin
+
+        num_cens_target = np.count_nonzero(target_galaxy_is_central & target_ibin_mask)
+        num_sats_target = np.count_nonzero(~target_galaxy_is_central & target_ibin_mask)
+
+        num_cens_source = np.count_nonzero(source_galaxy_is_central & source_ibin_mask)
+        num_sats_source = np.count_nonzero(~source_galaxy_is_central & source_ibin_mask)
+
+        if num_cens_target > 0:
+            result[target_galaxy_is_central & target_ibin_mask] = conditional_abunmatch(
+                target_galaxy_property[target_galaxy_is_central & target_ibin_mask],
+                source_galaxy_stellar_mass[source_galaxy_is_central & source_ibin_mask],
+                npts_lookup_table=min(num_cens_source, num_cens_target))
+
+        if num_sats_target > 0:
+            result[~target_galaxy_is_central & target_ibin_mask] = conditional_abunmatch(
+                target_galaxy_property[~target_galaxy_is_central & target_ibin_mask],
+                source_galaxy_stellar_mass[~source_galaxy_is_central & source_ibin_mask],
+                npts_lookup_table=min(num_sats_source, num_sats_target))
+
+    return result
 
 
 def source_target_bin_indices(source_galaxy_host_mass, target_galaxy_host_mass,
