@@ -10,6 +10,35 @@ from halotools.empirical_models import conditional_abunmatch
 __all__ = ('source_target_bin_indices', 'rescale_stellar_mass_to_match_unnormalized_source_csmf')
 
 
+def renormalize_csmf(source_galaxy_is_central, target_galaxy_is_central,
+            source_bin_numbers, target_bin_numbers,
+            source_host_halo_id, target_host_halo_id):
+    """
+    """
+    selection_indices = np.arange(0, len(target_galaxy_is_central))
+
+    unique_target_bin_numbers = np.unique(target_bin_numbers)
+    accumulator = []
+    for ibin in unique_target_bin_numbers:
+
+        target_ibin_mask = target_bin_numbers == ibin
+
+        target_cenmask = target_galaxy_is_central & target_ibin_mask
+        accumulator.append(selection_indices[target_cenmask])
+
+        source_ibin_mask = source_bin_numbers == ibin
+        num_sats_source = np.count_nonzero(~source_galaxy_is_central & source_ibin_mask)
+        num_unique_source_host_halos = len(np.unique(source_host_halo_id[source_ibin_mask]))
+        mean_nsat_source = num_sats_source/float(num_unique_source_host_halos)
+        num_unique_target_host_halos = len(np.unique(target_host_halo_id[target_ibin_mask]))
+        num_sats_to_select = int(round(mean_nsat_source*num_unique_target_host_halos))
+
+        target_satmask = ~target_galaxy_is_central & target_ibin_mask
+        accumulator.append(np.random.choice(
+            selection_indices[target_satmask], num_sats_to_select, replace=True))
+    return np.concatenate(accumulator)
+
+
 def rescale_stellar_mass_to_match_unnormalized_source_csmf(
             source_galaxy_stellar_mass, target_galaxy_property,
             source_galaxy_is_central, target_galaxy_is_central,
