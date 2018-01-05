@@ -19,13 +19,18 @@ def nearest_neighbor_mask(x, xc):
 
 
 def rescale_stellar_mass(protoDC2, universe_machine,
-            host_mass_bin_edges=np.logspace(10, 14.75, 25)):
+            host_mass_bin_edges=10**np.arange(10., 14.75, 0.01)):
     """
     """
 
     #  Bin galaxies by host halo mass
     source_galaxy_host_mass = universe_machine['host_halo_mvir']
+
     target_galaxy_host_mass = protoDC2['hostHaloMass']
+    dlogM = 0.1
+    target_galaxy_host_mass = 10**(
+        np.log10(protoDC2['hostHaloMass']) + np.random.uniform(-dlogM, dlogM, len(protoDC2)))
+
 
     source_galaxy_is_central = universe_machine['upid'] == -1
     target_galaxy_is_central = protoDC2['isCentral'].astype(bool)
@@ -47,12 +52,16 @@ def rescale_stellar_mass(protoDC2, universe_machine,
                 source_galaxy_is_central, target_galaxy_is_central,
                 source_bin_numbers, target_bin_numbers)
 
+    host_mass_bin_edges2 = 10**np.arange(10., 14.75, 0.5)
+    source_bin_numbers2, target_bin_numbers2 = source_target_bin_indices(
+        source_galaxy_host_mass, target_galaxy_host_mass,
+        source_galaxy_is_central, target_galaxy_is_central, host_mass_bin_edges2)
     #  Resample protoDC2 so that the normalized CSMF matches UniverseMachine
     source_host_halo_id = universe_machine['hostid']
     target_host_halo_id = protoDC2['hostIndex']
 
     indices = renormalize_csmf(source_galaxy_is_central, target_galaxy_is_central,
-                source_bin_numbers, target_bin_numbers,
+                source_bin_numbers2, target_bin_numbers2,
                 source_host_halo_id, target_host_halo_id)
 
     return protoDC2[indices]
@@ -88,14 +97,14 @@ def rescale_ssfr(protoDC2, universe_machine, logsm_bins=np.linspace(9, 12, 40)):
         satmask_dc2 = sm_mask_dc2 * (protoDC2['isCentral'] == False)
 
         num_dc2_cens = np.count_nonzero(cenmask_dc2)
-        if num_dc2_cens > 0:
+        if num_dc2_cens > 1:
             idx_censelect = nearest_neighbor_mask(universe_machine['obs_sm'][cenmask_um], 10**mid_sm)
             um_ssfr_cens = universe_machine['obs_ssfr'][cenmask_um][idx_censelect[:1000]]
             ssfr_cens = conditional_abunmatch(protoDC2['ssfr'][cenmask_dc2], um_ssfr_cens)
             protoDC2['remapped_ssfr'][cenmask_dc2] = ssfr_cens
 
         num_dc2_sats = np.count_nonzero(satmask_dc2)
-        if num_dc2_sats > 0:
+        if num_dc2_sats > 1:
             idx_satselect = nearest_neighbor_mask(universe_machine['obs_sm'][satmask_um], 10**mid_sm)
             um_ssfr_sats = universe_machine['obs_ssfr'][satmask_um][idx_satselect[:1000]]
             ssfr_sats = conditional_abunmatch(protoDC2['ssfr'][satmask_dc2], um_ssfr_sats, sigma=1)
