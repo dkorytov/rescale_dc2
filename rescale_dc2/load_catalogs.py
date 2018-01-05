@@ -147,7 +147,11 @@ def read_meert_catalog(datadir=upenn_datadir, phot_type=4):
     return t[indices]
 
 
-
+def load_dc2_sdss():
+    """
+    """
+    fname = "/Users/aphearin/Dropbox/SDSS_catalogs/DC2_SDSS/DC2_SDSS.hdf5"
+    return Table.read(fname, path='data')
 
 
 
