@@ -97,3 +97,46 @@ def source_target_bin_indices(source_galaxy_host_mass, target_galaxy_host_mass,
         target_bin_numbers[target_satmask] = target_bin_number
 
     return source_bin_numbers, target_bin_numbers
+
+
+def nearest_neighbor_rescale_stellar_mass(protoDC2_host_halo_mass, universe_machine_host_halo_mass,
+            universe_machine_stellar_mass, universe_machine_is_central, protoDC2_is_central):
+    """
+    """
+    pdc2_cens_mhost = protoDC2_host_halo_mass[protoDC2_is_central]
+    pdc2_sats_mhost = protoDC2_host_halo_mass[~protoDC2_is_central]
+
+    um_cens_mhost = universe_machine_host_halo_mass[universe_machine_is_central]
+    um_sats_mhost = universe_machine_host_halo_mass[~universe_machine_is_central]
+
+    pdc2_cens_rescaled_mhost = conditional_abunmatch(pdc2_cens_mhost, um_cens_mhost)
+    x_table = np.log10(np.sort(pdc2_cens_mhost))
+    y_table = np.log10(np.sort(pdc2_cens_rescaled_mhost))
+    pdc2_sats_rescaled_mhost = 10**np.interp(np.log10(pdc2_sats_mhost), x_table, y_table)
+
+    um_cens_mstar = universe_machine_stellar_mass[universe_machine_is_central]
+    um_sats_mstar = universe_machine_stellar_mass[~universe_machine_is_central]
+
+    idx_um_cens_sorted = np.argsort(um_cens_mhost)
+    idx_um_sats_sorted = np.argsort(um_sats_mhost)
+
+    um_sorted_cens_mstar = um_cens_mstar[idx_um_cens_sorted]
+    um_sorted_sats_mstar = um_sats_mstar[idx_um_sats_sorted]
+
+    um_sorted_cens_mhost = um_cens_mhost[idx_um_cens_sorted]
+    um_sorted_sats_mhost = um_sats_mhost[idx_um_sats_sorted]
+
+    idx_censelect = np.searchsorted(um_sorted_cens_mhost, pdc2_cens_rescaled_mhost)
+    idx_satselect = np.searchsorted(um_sorted_sats_mhost, pdc2_sats_rescaled_mhost)
+
+    idx_censelect = np.where(idx_censelect >= len(um_cens_mstar), idx_censelect-1, idx_censelect)
+    idx_satselect = np.where(idx_satselect >= len(um_sats_mstar), idx_satselect-1, idx_satselect)
+
+    rescaled_cens_mstar = um_sorted_cens_mstar[idx_censelect]
+    rescaled_sats_mstar = um_sorted_sats_mstar[idx_satselect]
+
+    result = np.zeros_like(protoDC2_host_halo_mass)
+    result[protoDC2_is_central] = rescaled_cens_mstar
+    result[~protoDC2_is_central] = rescaled_sats_mstar
+
+    return result
