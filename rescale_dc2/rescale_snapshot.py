@@ -1,6 +1,8 @@
 """
 """
 import numpy as np
+from scipy.spatial import cKDTree
+
 from halotools.empirical_models import conditional_abunmatch
 
 from .csmf_resampling import source_target_bin_indices
@@ -8,7 +10,7 @@ from .csmf_resampling import rescale_stellar_mass_to_match_unnormalized_source_c
 from .csmf_resampling import renormalize_csmf
 
 
-__all__ = ('rescale_stellar_mass', 'rescale_ssfr')
+__all__ = ('rescale_stellar_mass', 'rescale_ssfr', 'assign_sdss_restframe_absolute_ugriz')
 
 
 def nearest_neighbor_mask(x, xc):
@@ -101,3 +103,19 @@ def rescale_ssfr(protoDC2, universe_machine, logsm_bins=np.linspace(9, 12, 40)):
 
     return protoDC2
 
+
+def assign_sdss_restframe_absolute_ugriz(protoDC2, sdss):
+    """
+    """
+    tree = cKDTree(np.vstack((sdss['sm'], sdss['ssfr'])).T)
+
+    nn_distinces, nn_indices = tree.query(
+        np.vstack((np.log10(protoDC2['rescaled_mstar']), protoDC2['remapped_ssfr'])).T, k=1)
+
+    protoDC2['matched_mstar'] = 10**sdss['sm'][nn_indices]
+
+    absmag_keys = ('AbsMagu', 'AbsMagg', 'AbsMagr', 'AbsMagi', 'AbsMagz')
+    for key in absmag_keys:
+        protoDC2[key] = sdss[key][nn_indices]
+
+    return protoDC2
