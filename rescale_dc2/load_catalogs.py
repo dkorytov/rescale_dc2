@@ -12,6 +12,8 @@ cosmo = cosmology.setCosmology('planck15')
 upenn_datadir = r'/Users/aphearin/work/sdss/meert15'
 umachine_dropbox_dirname = "/Users/aphearin/Dropbox/protoDC2/umachine"
 
+__all__ = ('load_dc2_sdss', )
+
 
 def fname_generator(root_dirname, basename_filepat):
     """ Yield the absolute path of all files in the directory tree of ``root_dirname``
