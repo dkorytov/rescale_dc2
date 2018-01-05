@@ -12,6 +12,9 @@ cosmo = cosmology.setCosmology('planck15')
 upenn_datadir = r'/Users/aphearin/work/sdss/meert15'
 umachine_dropbox_dirname = "/Users/aphearin/Dropbox/protoDC2/umachine"
 
+completeness_table_dirname = "/Users/aphearin/Dropbox/UniverseMachine/data/sdss"
+completeness_table = np.loadtxt(os.path.join(completeness_table_dirname, 'completeness.dat'))
+
 __all__ = ('load_dc2_sdss', )
 
 
@@ -154,6 +157,10 @@ def load_dc2_sdss():
     """
     fname = "/Users/aphearin/Dropbox/SDSS_catalogs/DC2_SDSS/DC2_SDSS.hdf5"
     return Table.read(fname, path='data')
+
+
+def sdss_completeness_redshift(log10_stellar_mass):
+    return np.interp(log10_stellar_mass, completeness_table[:, 0], completeness_table[:, 1])
 
 
 
