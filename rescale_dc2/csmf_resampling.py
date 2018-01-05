@@ -24,7 +24,8 @@ def renormalize_csmf(source_galaxy_is_central, target_galaxy_is_central,
         target_ibin_mask = target_bin_numbers == ibin
 
         target_cenmask = target_galaxy_is_central & target_ibin_mask
-        accumulator.append(selection_indices[target_cenmask])
+        if np.count_nonzero(target_cenmask) > 0:
+            accumulator.append(selection_indices[target_cenmask])
 
         source_ibin_mask = source_bin_numbers == ibin
         num_sats_source = np.count_nonzero(~source_galaxy_is_central & source_ibin_mask)
@@ -34,8 +35,9 @@ def renormalize_csmf(source_galaxy_is_central, target_galaxy_is_central,
         num_sats_to_select = int(round(mean_nsat_source*num_unique_target_host_halos))
 
         target_satmask = ~target_galaxy_is_central & target_ibin_mask
-        accumulator.append(np.random.choice(
-            selection_indices[target_satmask], num_sats_to_select, replace=True))
+        if np.count_nonzero(target_satmask) > 0:
+            accumulator.append(np.random.choice(
+                selection_indices[target_satmask], num_sats_to_select, replace=True))
     return np.concatenate(accumulator)
 
 
