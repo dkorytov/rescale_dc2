@@ -5,6 +5,7 @@ import numpy as np
 from astropy.table import Table
 import fnmatch
 from .value_add_umachine_catalogs import apply_pbcs, add_host_keys, add_ssfr
+from .value_add_umachine_catalogs import add_host_centric_posvel
 from colossus.cosmology import cosmology
 
 
@@ -52,7 +53,8 @@ def load_closest_available_umachine_catalog(z, dirname=umachine_dropbox_dirname)
     """
     """
     fname = find_closest_available_umachine_snapshot(z, dirname=dirname)
-    return add_ssfr(apply_pbcs(add_host_keys(Table.read(fname, path='data'))))
+    return add_host_centric_posvel(
+        add_ssfr(apply_pbcs(add_host_keys(Table.read(fname, path='data')))), z)
 
 
 def read_meert_catalog(datadir=upenn_datadir, phot_type=4):
