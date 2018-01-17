@@ -119,9 +119,9 @@ def assign_sdss_restframe_absolute_ugriz(protoDC2, sdss):
     tree = cKDTree(np.vstack((sdss['sm'], sdss['ssfr'])).T)
 
     nn_distinces, nn_indices = tree.query(
-        np.vstack((np.log10(protoDC2['rescaled_mstar']), protoDC2['remapped_ssfr'])).T, k=1)
+        np.vstack((np.log10(protoDC2['obs_sm']), protoDC2['obs_ssfr'])).T, k=1)
 
-    protoDC2['matched_mstar'] = 10**sdss['sm'][nn_indices]
+    protoDC2['obs_sm'] = 10**sdss['sm'][nn_indices]
 
     absmag_keys = ('AbsMagu', 'AbsMagg', 'AbsMagr', 'AbsMagi', 'AbsMagz')
     for key in absmag_keys:

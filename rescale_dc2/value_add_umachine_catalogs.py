@@ -26,10 +26,10 @@ def add_host_keys(catalog, host_keys_to_add=('mvir', 'vmax')):
     return catalog
 
 
-def add_ssfr(catalog, quenched_sequence_center=-13.5):
+def add_ssfr(catalog, quenched_sequence_center=-13.0):
     ssfr = catalog['obs_sfr']/catalog['obs_sm']
     zero_mask = ssfr == 0.
     nzeros = np.count_nonzero(zero_mask)
-    ssfr[zero_mask] = 10**np.random.normal(loc=quenched_sequence_center, scale=0.2, size=nzeros)
+    ssfr[zero_mask] = 10**np.random.normal(loc=quenched_sequence_center, scale=0.5, size=nzeros)
     catalog['obs_ssfr'] = np.log10(ssfr)
     return catalog
