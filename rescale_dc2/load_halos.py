@@ -6,9 +6,20 @@ import fnmatch
 from astropy.table import Table
 
 
-__all__ = ('load_protoDC2_fof_halos', 'list_available_protoDC2_fof_fnames')
+__all__ = ('load_protoDC2_fof_halos', 'list_available_protoDC2_fof_fnames', 'load_bolshoi_planck_halos')
 
 fof_dirname = "/Users/aphearin/Dropbox/protoDC2/fof_halos"
+bpl_dirname = "/Users/aphearin/Dropbox/protoDC2/umachine/host_halos"
+
+
+def load_bolshoi_planck_halos(fname):
+    halos = Table.read(fname, path='data')
+
+    Vbox_bpl = 250.**3
+    halos.sort('mvir')
+    halos['log10_cumulative_nd_mvir'] = np.log10(
+        np.arange(len(halos), 0, -1)/Vbox_bpl)
+    return halos[::-1]
 
 
 def load_protoDC2_fof_halos(fname):
@@ -31,10 +42,7 @@ def load_protoDC2_fof_halos(fname):
     pdc2_halos.sort('fof_halo_mass')
     pdc2_halos['log10_cumulative_nd_mvir'] = np.log10(
         np.arange(len(pdc2_halos), 0, -1)/Vbox_aq)
-
-    pdc2_halos = pdc2_halos[::-1]
-
-    return pdc2_halos
+    return pdc2_halos[::-1]
 
 
 def fname_generator(root_dirname, basename_filepat):
@@ -49,3 +57,7 @@ def fname_generator(root_dirname, basename_filepat):
 
 def list_available_protoDC2_fof_fnames():
     return list(fname_generator(fof_dirname, '*.hdf5'))
+
+
+def list_available_bpl_halo_fnames():
+    return list(fname_generator(bpl_dirname, '*.hdf5'))
