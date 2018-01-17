@@ -1,7 +1,14 @@
 """
 """
+import os
 import numpy as np
+import fnmatch
 from astropy.table import Table
+
+
+__all__ = ('load_protoDC2_fof_halos', 'list_available_protoDC2_fof_fnames')
+
+fof_dirname = "/Users/aphearin/Dropbox/protoDC2/fof_halos"
 
 
 def load_protoDC2_fof_halos(fname):
@@ -28,3 +35,17 @@ def load_protoDC2_fof_halos(fname):
     pdc2_halos = pdc2_halos[::-1]
 
     return pdc2_halos
+
+
+def fname_generator(root_dirname, basename_filepat):
+    """ Yield the absolute path of all files in the directory tree of ``root_dirname``
+    with a basename matching the input pattern
+    """
+
+    for path, dirlist, filelist in os.walk(root_dirname):
+        for filename in fnmatch.filter(filelist, basename_filepat):
+            yield os.path.join(path, filename)
+
+
+def list_available_protoDC2_fof_fnames():
+    return list(fname_generator(fof_dirname, '*.hdf5'))
