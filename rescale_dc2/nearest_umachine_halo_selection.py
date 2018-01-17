@@ -7,7 +7,8 @@ from halotools.utils import crossmatch
 from halotools.empirical_models import enforce_periodicity_of_box
 
 
-__all__ = ('source_halo_selection_indices', )
+__all__ = ('source_halo_selection_indices', 'value_add_matched_target_halos',
+    'source_galaxy_selection_indices', 'create_galsampled_dc2')
 
 
 def my_randint(low, high):
@@ -40,10 +41,10 @@ def value_add_matched_target_halos(source_halos, target_halos, indices):
 
 
 def source_galaxy_selection_indices(target_halos, indices):
-    ngal_tot = int(np.sum(target_halos['richness'][source_halo_selection_indices]))
+    ngal_tot = int(np.sum(target_halos['richness'][indices]))
 
-    first_indices = target_halos['first_galaxy_index'][source_halo_selection_indices].astype(long)
-    richness = target_halos['richness'][source_halo_selection_indices].astype('i4')
+    first_indices = target_halos['first_galaxy_index'][indices].astype(long)
+    richness = target_halos['richness'][indices].astype('i4')
 
     return np.array(galaxy_selection_kernel(first_indices, richness, ngal_tot))
 
