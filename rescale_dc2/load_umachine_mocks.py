@@ -43,7 +43,7 @@ def fname_generator(root_dirname, basename_filepat):
 
 
 def list_available_umachine_fnames():
-    return list(fname_generator(umachine_dirname, '*.hdf5'))
+    return list(fname_generator(umachine_dirname, 'sfr_catalog*.hdf5'))
 
 
 def apply_pbcs(catalog, Lbox=250.):
