@@ -12,6 +12,7 @@ from halotools.mock_observables import relative_positions_and_velocities as rel_
 
 
 umachine_dirname = "/Users/aphearin/Dropbox/protoDC2/umachine/mstar_1e8_cut"
+bpl_halos_dirname = "/Users/aphearin/Dropbox/protoDC2/umachine/host_halos"
 
 
 __all__ = ('load_umachine_and_value_added_halos', )
@@ -43,7 +44,11 @@ def fname_generator(root_dirname, basename_filepat):
 
 
 def list_available_umachine_fnames():
-    return list(fname_generator(umachine_dirname, 'sfr_catalog*.hdf5'))
+    return list(fname_generator(umachine_dirname, 'value_added_sfr_catalog*.hdf5'))
+
+
+def list_available_bpl_fnames():
+    return list(fname_generator(bpl_halos_dirname, 'value_added_hlist*.hdf5'))
 
 
 def apply_pbcs(catalog, Lbox=250.):
