@@ -76,8 +76,16 @@ def create_galsampled_dc2(umachine, target_halos, halo_indices, galaxy_indices):
     for key in source_galaxy_keys:
         dc2[key] = umachine[key][galaxy_indices]
 
-    dc2['x'] = enforce_periodicity_of_box(dc2['target_halo_x'] + dc2['host_centric_x'], 256.)
-    dc2['y'] = enforce_periodicity_of_box(dc2['target_halo_y'] + dc2['host_centric_y'], 256.)
-    dc2['z'] = enforce_periodicity_of_box(dc2['target_halo_z'] + dc2['host_centric_z'], 256.)
+    x_init = dc2['target_halo_x'] + dc2['host_centric_x']
+    vx_init = dc2['target_halo_vx'] + dc2['host_centric_vx']
+    dc2['x'], dc2['vx'] = enforce_periodicity_of_box(x_init, 256., velocity=vx_init)
+
+    y_init = dc2['target_halo_y'] + dc2['host_centric_y']
+    vy_init = dc2['target_halo_vy'] + dc2['host_centric_vy']
+    dc2['y'], dc2['vy'] = enforce_periodicity_of_box(y_init, 256., velocity=vy_init)
+
+    z_init = dc2['target_halo_z'] + dc2['host_centric_z']
+    vz_init = dc2['target_halo_vz'] + dc2['host_centric_vz']
+    dc2['z'], dc2['vz'] = enforce_periodicity_of_box(z_init, 256., velocity=vz_init)
 
     return dc2
