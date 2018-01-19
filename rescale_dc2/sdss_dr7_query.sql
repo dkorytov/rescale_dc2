@@ -3,7 +3,7 @@ sp.specObjID,sp.objID,sp.ra,sp.dec,sp.z,sp.modelMag_u,sp.modelMag_g,sp.modelMag_
 FROM SpecPhotoAll AS sp
 WHERE
    sp.objType = 0 AND
-   sp.modelMag_r < 17.77 AND
    sp.sciencePrimary > 0 AND
-   sp.z < 0.1
+   sp.z < 0.1 AND
+   sp.objID IS NOT NULL
 ORDER BY sp.specObjID
