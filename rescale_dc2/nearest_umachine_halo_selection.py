@@ -72,7 +72,7 @@ def create_galsampled_dc2(umachine, target_halos, halo_indices, galaxy_indices):
     source_galaxy_keys = ('host_halo_mvir', 'upid',
                        'host_centric_x', 'host_centric_y', 'host_centric_z',
                        'host_centric_vx', 'host_centric_vy', 'host_centric_vz',
-                          'obs_sm', 'obs_sfr')
+                          'obs_sm', 'obs_sfr', 'sfr_percentile_fixed_sm')
     for key in source_galaxy_keys:
         dc2[key] = umachine[key][galaxy_indices]
 
