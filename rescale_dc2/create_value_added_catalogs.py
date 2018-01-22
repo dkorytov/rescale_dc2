@@ -8,7 +8,7 @@ from .load_umachine_mocks import load_umachine_and_value_added_halos
 
 def store_value_added_umachine_bolshoi_catalogs(umachine_fname, bolshoi_halos_fname):
     umachine, bpl_halos = load_umachine_and_value_added_halos(
-        umachine_fname, load_bolshoi_planck_halos(bolshoi_halos_fname))
+        umachine_fname, bolshoi_halos_fname)
 
     x = umachine['obs_sm']
     y = umachine['obs_sfr']
