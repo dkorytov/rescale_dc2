@@ -1,6 +1,8 @@
 """
 """
+import numpy as np
 from astropy.table import Table
+from scipy.spatial import cKDTree
 
 
 def load_umachine_z0p1_color_mock(umachine_z0p1_color_mock_fname):
@@ -30,7 +32,19 @@ def load_bolshoi_planck_halo_catalog(bolshoi_planck_halo_catalog_fname):
 def transfer_colors_to_umachine_mstar_ssfr_mock(umachine_mstar_ssfr_mock, umachine_z0p1_color_mock):
     """
     """
-    raise NotImplementedError()
+    X = np.vstack((np.log10(umachine_z0p1_color_mock['obs_sm']),
+        umachine_z0p1_color_mock['sfr_percentile_fixed_sm'])).T
+
+    Y = np.vstack((np.log10(umachine_mstar_ssfr_mock['obs_sm']),
+        umachine_mstar_ssfr_mock['sfr_percentile_fixed_sm'])).T
+
+    tree = cKDTree(X)
+    nn_distinces, nn_indices = tree.query(Y, k=1)
+
+    keys_to_inherit = ('rmag', 'sdss_petrosian_gr', 'sdss_petrosian_ri', 'size_kpc')
+    for key in keys_to_inherit:
+        umachine_mstar_ssfr_mock[key] = umachine_z0p1_color_mock[key][nn_indices]
+
     return umachine_mstar_ssfr_mock
 
 
