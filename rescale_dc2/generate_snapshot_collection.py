@@ -68,8 +68,6 @@ def build_output_snapshot_mock(umachine, target_halos, halo_indices, galaxy_indi
     msg = "target IDs do not match!"
     assert np.all(dc2['source_halo_id'][idxA] == target_halos['source_halo_id'][idxB]), msg
 
-    target_halo_keys = ('x', 'y', 'z', 'vx', 'vy', 'vz')
-
     dc2['target_halo_x'] = 0.
     dc2['target_halo_y'] = 0.
     dc2['target_halo_z'] = 0.
