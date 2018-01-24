@@ -124,6 +124,51 @@ def write_sdss_restframe_color_snapshot_mocks_to_disk(
             output_color_mock_fname_list, overwrite=False,
             source_halo_catalog_Lbox=250., target_halo_catalog_Lbox=256.):
     """
+    Function writes to disk a set of extragalactic snapshot catalogs by GalSampling UniverseMachine.
+
+    Parameters
+    ----------
+    umachine_z0p1_color_mock_fname : string
+        Absolute path to the z=0.1 UniverseMachine baseline mock that includes
+        M*, SFR, Mr, g-r, r-i.
+
+    protoDC2_fof_halo_catalog_fname_list : list of strings
+        List of absolute paths to the snapshot catalogs of FoF host halos in AlphaQ
+        that will host galaxies in the output collection of mocks.
+
+        These are the "target halos" in the language of GalSampler.
+
+        The ordering of this list should be consistent with
+        the orderings of the other filename lists.
+
+    umachine_mstar_ssfr_mock_fname_list : list of strings
+        List of absolute paths to the snapshot catalogs of
+        UniverseMachine mock galaxies with M* and SFR.
+
+        Values of Mr, g-r, and r-i will be painted onto these galaxies using
+        the mock stored in the umachine_z0p1_color_mock_fname argument,
+        and then these galaxies will be GalSampled into the AlphaQ snapshot.
+
+        These are the "source galaxies" in the language of GalSampler.
+
+        The ordering of this list should be consistent with
+        the orderings of the other filename lists.
+
+    bolshoi_planck_halo_catalog_fname_list : list of strings
+        List of absolute paths to the snapshot catalogs of
+        Rockstar host halos hosting UniverseMachine mock galaxies.
+
+        These are the "source halos" in the language of GalSampler.
+
+        The ordering of this list should be consistent with
+        the orderings of the other filename lists.
+
+    output_color_mock_fname_list : list of strings
+        List of absolute paths to the output catalogs
+
+        The ordering of this list should be consistent with
+        the orderings of the other filename lists.
+
     """
     umachine_z0p1_color_mock = load_umachine_z0p1_color_mock(umachine_z0p1_color_mock_fname)
 
