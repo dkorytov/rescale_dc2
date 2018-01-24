@@ -67,10 +67,21 @@ def build_output_snapshot_mock(umachine_mstar_ssfr_mock_with_colors, protoDC2_fo
     raise NotImplementedError()
 
 
+def add_log10_cumulative_nd_mvir_column(halos, key, Lbox):
+    """
+    """
+    Vbox = float(Lbox**3.)
+    halos.sort(key)
+    halos['log10_cumulative_nd_mvir'] = np.log10(
+        np.arange(len(halos), 0, -1)/Vbox)
+    return halos[::-1]
+
+
 def write_sdss_restframe_color_snapshot_mocks_to_disk(
             umachine_z0p1_color_mock_fname, protoDC2_fof_halo_catalog_fname_list,
             umachine_mstar_ssfr_mock_fname_list, bolshoi_planck_halo_catalog_fname_list,
-            output_color_mock_fname_list, overwrite=False):
+            output_color_mock_fname_list, overwrite=False,
+            source_halo_catalog_Lbox=250., target_halo_catalog_Lbox=256.):
     """
     """
     umachine_z0p1_color_mock = load_umachine_z0p1_color_mock(umachine_z0p1_color_mock_fname)
@@ -84,6 +95,12 @@ def write_sdss_restframe_color_snapshot_mocks_to_disk(
         umachine_mstar_ssfr_mock = load_umachine_mstar_ssfr_mock(fname1)
         protoDC2_fof_halo_catalog = load_protoDC2_fof_halo_catalog(fname2)
         bolshoi_planck_halo_catalog = load_bolshoi_planck_halo_catalog(fname3)
+
+        #  Add the number density columns needed to find matching pairs of source/target halos
+        protoDC2_fof_halo_catalog = add_log10_cumulative_nd_mvir_column(
+            protoDC2_fof_halo_catalog, 'fof_halo_mass', target_halo_catalog_Lbox)
+        bolshoi_planck_halo_catalog = add_log10_cumulative_nd_mvir_column(
+            bolshoi_planck_halo_catalog, 'mvir', source_halo_catalog_Lbox)
 
         #  Transfer the colors from the z=0.1 UniverseMachine mock to the other UniverseMachine mock
         umachine_mstar_ssfr_mock_with_colors = transfer_colors_to_umachine_mstar_ssfr_mock(
