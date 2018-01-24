@@ -3,6 +3,9 @@
 import numpy as np
 from astropy.table import Table
 from scipy.spatial import cKDTree
+from halotools.utils import crossmatch
+from halotools.empirical_models import enforce_periodicity_of_box
+
 from .nearest_umachine_halo_selection import source_halo_selection_indices
 from .nearest_umachine_halo_selection import source_galaxy_selection_indices
 
@@ -50,11 +53,47 @@ def transfer_colors_to_umachine_mstar_ssfr_mock(umachine_mstar_ssfr_mock, umachi
     return umachine_mstar_ssfr_mock
 
 
-def build_output_snapshot_mock(umachine_mstar_ssfr_mock_with_colors, protoDC2_fof_halo_catalog,
-            source_halo_selection_indices, source_galaxy_selection_indices):
+def build_output_snapshot_mock(umachine, target_halos, halo_indices, galaxy_indices,
+            Lbox_target=256.):
     """
     """
-    raise NotImplementedError()
+    dc2 = Table()
+    dc2['source_halo_id'] = umachine['hostid'][galaxy_indices]
+    dc2['target_halo_id'] = np.repeat(
+        target_halos['halo_id'][halo_indices], target_halos['richness'][halo_indices])
+
+    idxA, idxB = crossmatch(dc2['target_halo_id'], target_halos['halo_id'])
+
+    msg = "target IDs do not match!"
+    assert np.all(dc2['source_halo_id'][idxA] == target_halos['source_halo_id'][idxB]), msg
+
+    target_halo_keys = ('x', 'y', 'z', 'vx', 'vy', 'vz')
+    for key in target_halo_keys:
+        dc2['target_halo_'+key] = 0.
+        dc2['target_halo_'+key][idxA] = target_halos[key][idxB]
+    dc2['target_halo_mass'] = 0.
+    dc2['target_halo_mass'][idxA] = target_halos['fof_halo_mass'][idxB]
+
+    source_galaxy_keys = ('host_halo_mvir', 'upid',
+            'host_centric_x', 'host_centric_y', 'host_centric_z',
+            'host_centric_vx', 'host_centric_vy', 'host_centric_vz',
+            'obs_sm', 'obs_sfr', 'sfr_percentile_fixed_sm',
+            'rmag', 'sdss_petrosian_gr', 'sdss_petrosian_ri', 'size_kpc')
+    for key in source_galaxy_keys:
+        dc2[key] = umachine[key][galaxy_indices]
+
+    x_init = dc2['target_halo_x'] + dc2['host_centric_x']
+    vx_init = dc2['target_halo_vx'] + dc2['host_centric_vx']
+    dc2['x'], dc2['vx'] = enforce_periodicity_of_box(x_init, Lbox_target, velocity=vx_init)
+
+    y_init = dc2['target_halo_y'] + dc2['host_centric_y']
+    vy_init = dc2['target_halo_vy'] + dc2['host_centric_vy']
+    dc2['y'], dc2['vy'] = enforce_periodicity_of_box(y_init, Lbox_target, velocity=vy_init)
+
+    z_init = dc2['target_halo_z'] + dc2['host_centric_z']
+    vz_init = dc2['target_halo_vz'] + dc2['host_centric_vz']
+    dc2['z'], dc2['vz'] = enforce_periodicity_of_box(z_init, Lbox_target, velocity=vz_init)
+    return dc2
 
 
 def add_log10_cumulative_nd_mvir_column(halos, key, Lbox):
@@ -109,8 +148,8 @@ def write_sdss_restframe_color_snapshot_mocks_to_disk(
 
         #  Assemble the output protoDC2 mock
         output_snapshot_mock = build_output_snapshot_mock(
-            umachine_mstar_ssfr_mock_with_colors, protoDC2_fof_halo_catalog,
-            source_halo_indx, source_galaxy_indx)
+                umachine_mstar_ssfr_mock_with_colors, protoDC2_fof_halo_catalog,
+                source_halo_indx, source_galaxy_indx)
 
         #  Write the output protoDC2 mock to disk
         output_snapshot_mock.write(output_color_mock_fname, path='data', overwrite=overwrite)

@@ -49,7 +49,8 @@ def source_galaxy_selection_indices(target_halos, indices):
     return np.array(galaxy_selection_kernel(first_indices, richness, ngal_tot))
 
 
-def create_galsampled_dc2(umachine, target_halos, halo_indices, galaxy_indices):
+def create_galsampled_dc2(umachine, target_halos, halo_indices, galaxy_indices,
+            Lbox_target=256.):
     """
     """
     dc2 = Table()
@@ -78,14 +79,14 @@ def create_galsampled_dc2(umachine, target_halos, halo_indices, galaxy_indices):
 
     x_init = dc2['target_halo_x'] + dc2['host_centric_x']
     vx_init = dc2['target_halo_vx'] + dc2['host_centric_vx']
-    dc2['x'], dc2['vx'] = enforce_periodicity_of_box(x_init, 256., velocity=vx_init)
+    dc2['x'], dc2['vx'] = enforce_periodicity_of_box(x_init, Lbox_target, velocity=vx_init)
 
     y_init = dc2['target_halo_y'] + dc2['host_centric_y']
     vy_init = dc2['target_halo_vy'] + dc2['host_centric_vy']
-    dc2['y'], dc2['vy'] = enforce_periodicity_of_box(y_init, 256., velocity=vy_init)
+    dc2['y'], dc2['vy'] = enforce_periodicity_of_box(y_init, Lbox_target, velocity=vy_init)
 
     z_init = dc2['target_halo_z'] + dc2['host_centric_z']
     vz_init = dc2['target_halo_vz'] + dc2['host_centric_vz']
-    dc2['z'], dc2['vz'] = enforce_periodicity_of_box(z_init, 256., velocity=vz_init)
+    dc2['z'], dc2['vz'] = enforce_periodicity_of_box(z_init, Lbox_target, velocity=vz_init)
 
     return dc2
