@@ -108,6 +108,14 @@ def build_output_snapshot_mock(umachine, target_halos, halo_indices, galaxy_indi
     return dc2
 
 
+def remap_mock_galaxies_with_galacticus_properties(mock):
+    """ Function accepts the output mock from the build_output_snapshot_mock function
+    and returns a mock that has been modified replacing mock galaxies with their
+    nearest-neighbor in Galacticus.
+    """
+    return mock
+
+
 def add_log10_cumulative_nd_mvir_column(halos, key, Lbox):
     """
     """
@@ -211,6 +219,9 @@ def write_sdss_restframe_color_snapshot_mocks_to_disk(
         output_snapshot_mock = build_output_snapshot_mock(
                 umachine_mstar_ssfr_mock_with_colors, protoDC2_fof_halo_catalog,
                 source_halo_indx, source_galaxy_indx)
+
+        #  Use DTK code to cross-match with Galacticus galaxies
+        output_snapshot_mock = remap_mock_galaxies_with_galacticus_properties(output_snapshot_mock)
 
         #  Write the output protoDC2 mock to disk
         output_snapshot_mock.write(output_color_mock_fname, path='data', overwrite=overwrite)
