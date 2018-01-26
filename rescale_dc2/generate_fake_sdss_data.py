@@ -2,6 +2,8 @@
 """
 import numpy as np
 from scipy.stats import binned_statistic
+from astropy.table import Table
+from halotools.empirical_models import conditional_abunmatch
 
 
 def polyfit_median_quantity_vs_mstar(log10_mstar, data_log10_mstar, data_quantity,
@@ -47,6 +49,33 @@ def monte_carlo_magr_mock_sample(log10_mstar_mock_sample, data_log10_mstar, data
     return np.random.normal(loc=median_magr, scale=magr_scatter)
 
 
+def monte_carlo_mock_sdss_data_faint_end(ngals_mock, data_gr, data_ri, data_log10_mstar,
+            data_AbsMagr, logsm_fitting_range=(8.5, 10)):
+    """
+    """
+    mock_log10_mstar = np.random.normal(loc=8, scale=0.75, size=ngals_mock)
 
+    magr_scatter = np.interp(mock_log10_mstar, [6, 8.5], [0.4, 0.3])
+    mock_magr = monte_carlo_magr_mock_sample(mock_log10_mstar, data_log10_mstar, data_AbsMagr,
+            logsm_fitting_range, magr_scatter)
 
+    ngals_mock = len(mock_log10_mstar)
+    X = np.vstack((data_gr, data_ri))
+    cov = np.cov(X)/8.
 
+    gr_center = np.median(data_gr)-0.1
+    ri_center = np.median(data_ri)-1.
+    median_gr = np.interp(mock_log10_mstar, [6, 9], [gr_center-0.2, gr_center])
+    median_ri = np.interp(mock_log10_mstar, [6, 9], [ri_center-0.3, ri_center])
+    median_array = np.vstack((median_gr, median_ri)).T
+
+    Z = np.random.multivariate_normal(mean=(0, 0), cov=cov, size=ngals_mock) + median_array
+    mock_gr, mock_ri = Z[:, 0], Z[:, 1]
+
+    mock = Table()
+    mock['gr'] = conditional_abunmatch(mock_gr, data_gr)
+    mock['ri'] = conditional_abunmatch(mock_ri, data_ri)
+    mock['sm'] = mock_log10_mstar
+    mock['magr'] = mock_magr
+
+    return mock
