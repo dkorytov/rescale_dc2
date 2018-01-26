@@ -2,6 +2,7 @@
 """
 import numpy as np
 from scipy.stats import binned_statistic
+from scipy.special import erf
 from astropy.table import Table
 from halotools.empirical_models import conditional_abunmatch
 
@@ -77,5 +78,18 @@ def monte_carlo_mock_sdss_data_faint_end(ngals_mock, data_gr, data_ri, data_log1
     mock['ri'] = conditional_abunmatch(mock_ri, data_ri)
     mock['sm'] = mock_log10_mstar
     mock['magr'] = mock_magr
+
+    gr_std = np.std(mock['gr'])
+    gr_med = np.median(mock['gr'])
+    ri_std = np.std(mock['ri'])
+    ri_med = np.median(mock['ri'])
+
+    gr_x = mock['gr'] - gr_med
+    ri_x = mock['ri'] - ri_med
+
+    mu_x = gr_x + ri_x
+    joint_sigma = np.sqrt(gr_std**1 + ri_std**2)
+    joint_zscore = mu_x/joint_sigma
+    mock['color_percentile'] = 1. - 0.5*(1 + erf(joint_zscore/np.sqrt(2)))
 
     return mock
