@@ -4,7 +4,7 @@ import numpy as np
 from scipy.stats import binned_statistic
 
 
-def powerlaw_extrapolate_AbsMagr_from_mstar(log10_mstar, data_log10_mstar, data_AbsMagr,
+def estimate_median_AbsMagr_from_mstar(log10_mstar, data_log10_mstar, data_AbsMagr,
             logsm_fitting_range, npts_lookup_table=10):
     """
     Parameters
@@ -35,3 +35,18 @@ def powerlaw_extrapolate_AbsMagr_from_mstar(log10_mstar, data_log10_mstar, data_
     logsm_mids = 0.5*(logsm_bins[:-1] + logsm_bins[1:])
     p1, p0 = np.polyfit(logsm_mids, median_AbsMagr, deg=1)
     return p0 + p1*log10_mstar
+
+
+def monte_carlo_magr_mock_sample(log10_mstar_mock_sample, data_log10_mstar, data_AbsMagr,
+            logsm_fitting_range, magr_scatter=0.4, npts_lookup_table=10):
+    """
+    """
+    median_magr = estimate_median_AbsMagr_from_mstar(
+        log10_mstar_mock_sample, data_log10_mstar, data_AbsMagr, logsm_fitting_range)
+
+    return np.random.normal(loc=median_magr, scale=magr_scatter)
+
+
+
+
+
